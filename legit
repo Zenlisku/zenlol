@@ -2164,6 +2164,101 @@ do
 		else
 			frame.CanvasSize = UDim2.new(0, 0, 0, 0)
 			frame.ScrollBarImageTransparency = 1
+			function Tabs:AddSlider(Flags)
+			local Slider = Instance.new("TextButton")
+			local SliderBounds = Instance.new("Frame")
+			local SliderPart = Instance.new("Frame")
+			local UICorner = Instance.new("UICorner")
+			local UICorner_2 = Instance.new("UICorner")
+			local TextLabel = Instance.new("TextLabel")
+
+			local Name = Flags["Name"] or "Slider"
+			local Flag = Flags["Flag"] or ""
+			local Min = Flags["Min"] or 0
+			local Max = Flags["Max"] or 100
+            local Default = Flags["Default"] or Min
+            if Default ~= Min then
+                Default = math.clamp(Flags["Default"], Min, Max)
+            end
+
+			Library.Flags[Flag] = Default
+
+			local function snap(number, factor)
+				return math.floor(number/factor) * factor
+			end
+
+			local Held = false
+			local percentage = 0
+            
+
+			SliderBounds.Name = "SliderBounds"
+			SliderBounds.Parent = Slider
+			SliderBounds.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+			SliderBounds.BorderSizePixel = 0
+			SliderBounds.Position = UDim2.new(0, 0, 0.550649345, 0)
+			SliderBounds.Size = UDim2.new(0, 421, 0, 12)
+			SliderBounds.ZIndex = 8
+
+			Slider.Name = Name
+			Slider.Parent = Tab
+			Slider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			Slider.BackgroundTransparency = 1.000
+			Slider.Position = UDim2.new(0.0463362075, 0, 0.677083313, 0)
+			Slider.Size = UDim2.new(0, 421, 0, 77)
+			Slider.Text = ""
+			Slider.MouseButton1Down:Connect(function()
+				Held = true
+			end)
+			UIS.InputEnded:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					Held = false
+				end
+			end)
+			RS.RenderStepped:Connect(function(input)
+				if (Held) then
+					local MousePos = UIS:GetMouseLocation().X
+					local sliderSize = SliderBounds.AbsoluteSize.X
+					local sliderPos = SliderBounds.AbsolutePosition.X
+					local snapped = snap((MousePos-sliderPos)/sliderSize, 1/Max)
+					percentage = math.clamp(snapped, 0, 1)
+					local pos = UDim2.new(percentage - 0.025, 0, SliderPart.Position.Y.Scale, SliderPart.Position.Y.Offset)
+					SliderPart:TweenPosition(pos, Enum.EasingDirection.InOut, Enum.EasingStyle.Linear, 0.05, false)
+					local Output = math.floor(Min + percentage*(Max - Min))
+					TextLabel.Text = tostring(Name .. ": " .. tostring(Output))
+					Library.Flags[Flag] = Output
+				end
+			end)
+
+			SliderPart.Name = "SliderPart"
+			SliderPart.Parent = SliderBounds
+			SliderPart.BackgroundColor3 = Color3.fromRGB(83, 83, 83)
+			SliderPart.Position = UDim2.new(snap(Default/Max, 1/Max) - 0.025, 0, -0.916999996, 0)
+			SliderPart.Size = UDim2.new(0, 20, 0, 33)
+			SliderPart.ZIndex = 10
+
+			TextLabel.Parent = SliderBounds
+			TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			TextLabel.BackgroundTransparency = 1.000
+			TextLabel.Position = UDim2.new(0, 0, -4.16666651, 0)
+			TextLabel.Size = UDim2.new(0, 421, 0, 42)
+			TextLabel.ZIndex = 10
+			TextLabel.Font = Enum.Font.SourceSans
+			TextLabel.Text = Name..": "..tostring(Default)
+			TextLabel.TextColor3 = Color3.fromRGB(231, 231, 231)
+			TextLabel.TextScaled = true
+			TextLabel.TextSize = 14.000
+			TextLabel.TextWrapped = true
+
+			UICorner.Parent = SliderPart
+
+			UICorner_2.Parent = SliderBounds
+		end
+
+		return Tabs
+	end
+	return Windows
+end
+return Library
 		end
 	end
 end
